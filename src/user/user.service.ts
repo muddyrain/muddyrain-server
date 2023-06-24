@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { ResponseHelper } from './../common/ResponseHelper.filter';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
@@ -7,6 +8,7 @@ import { Repository } from 'typeorm';
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    private logger: Logger,
   ) {}
   async create(user: User) {
     const target = await this.userRepository.findOne({
@@ -15,7 +17,8 @@ export class UserService {
       },
     });
     if (target) {
-      throw new Error('用户名已存在');
+      this.logger.error('用户已存在');
+      return ResponseHelper.error('用户已存在');
     } else {
       const userTmp = this.userRepository.create(user);
       return this.userRepository.save(userTmp);
