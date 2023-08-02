@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
+import { PagerQueryParams } from '@/common';
 
 @Injectable()
 export class UserService {
@@ -23,5 +24,12 @@ export class UserService {
       const userTmp = this.userRepository.create(user);
       return this.userRepository.save(userTmp);
     }
+  }
+  async findAll(params: PagerQueryParams) {
+    const users = await this.userRepository.find({
+      skip: (+params.page - 1) * +params.pageSize,
+      take: +params.pageSize,
+    });
+    return users;
   }
 }

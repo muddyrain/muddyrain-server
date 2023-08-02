@@ -1,5 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { UserService } from './user.service';
+import { PagerQueryParams } from '@/common';
 
 @Controller('user')
 export class UserController {
@@ -8,5 +9,10 @@ export class UserController {
   @Post()
   create(@Body() body: any) {
     return this.userService.create(body);
+  }
+
+  @Get()
+  getAll(@Query() query: PagerQueryParams) {
+    return this.userService.findAll(query);
   }
 }
