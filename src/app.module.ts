@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import * as dotenv from 'dotenv';
 import { DatabaseModule } from './db/db.module';
 import { UserModule } from './user/user.module';
+import { BannerModule } from './banner/banner.module';
 
 // 环境变量文件路径
 const envFilePath = `.env.${process.env.NODE_ENV}`;
@@ -16,6 +17,7 @@ const envFilePath = `.env.${process.env.NODE_ENV}`;
     }),
     DatabaseModule,
     UserModule,
+    BannerModule,
   ],
   providers: [Logger],
   exports: [Logger],
