@@ -1,10 +1,12 @@
-import { ResponseHelper } from './../common/ResponseHelper.filter';
+import { ResponseHelper } from '../../common/ResponseHelper.filter';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { PagerQueryParams } from '@/common';
 import * as md5 from 'md5';
+import * as jwt from 'jsonwebtoken';
+import { PRIVATE_KEY } from '@/constant/config';
 
 @Injectable()
 export class UserService {
@@ -94,8 +96,17 @@ export class UserService {
       userName: body.userName,
     });
     if (user.password === md5(body.password)) {
-      console.log('成功');
-      return '成功';
+      const token = jwt.sign({ ...user }, PRIVATE_KEY, {
+        expiresIn: '30d',
+        header: {
+          typ: 'JWT',
+          alg: 'HS256',
+        },
+      });
+      return ResponseHelper.success({
+        token,
+        ...user,
+      });
     }
     return ResponseHelper.error('Incorrect username or password');
   }

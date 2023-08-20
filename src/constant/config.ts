@@ -7,3 +7,5 @@ interface envTypes {
 export const envConfig = (variable: keyof envTypes) => {
   return process.env[variable];
 };
+
+export const PRIVATE_KEY = 'muddyrain';

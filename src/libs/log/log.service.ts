@@ -16,7 +16,11 @@ export class LogService implements NestMiddleware {
     const log = new Log();
     log.ip = ip;
     log.url = originalUrl;
-    log.message = '';
+    log.message = JSON.stringify({
+      body: req.body,
+      params: req.params,
+      query: req.query,
+    });
     log.username = '';
     try {
       await this.logRepository.save(log);
