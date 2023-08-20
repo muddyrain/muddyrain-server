@@ -1,8 +1,9 @@
+import { CommonEntity } from '@/common/commonEntity';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class User {
-  @PrimaryGeneratedColumn()
+export class User extends CommonEntity {
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
@@ -31,11 +32,4 @@ export class User {
 
   @Column({ nullable: true })
   nickName?: string;
-
-  @Column({
-    name: 'create_time',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createTime: Date;
 }

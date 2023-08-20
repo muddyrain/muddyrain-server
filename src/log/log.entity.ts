@@ -2,17 +2,19 @@ import { CommonEntity } from '@/common/commonEntity';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Banner extends CommonEntity {
+export class Log extends CommonEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({
-    nullable: false,
-  })
-  title: string;
+  @Column()
+  message: string;
 
-  @Column({
-    nullable: false,
-  })
+  @Column()
+  ip: string;
+
+  @Column()
   url: string;
+
+  @Column()
+  username: string;
 }

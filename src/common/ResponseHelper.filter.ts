@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 export interface ResponseReturn {
   code: number;
   data: any;
@@ -12,6 +13,7 @@ export class ResponseHelper {
    * @returns {ResponseReturn} 响应信息
    */
   public static error(message: string, code = 500): ResponseReturn {
+    Logger.error(message);
     return {
       code,
       data: null,

@@ -1,15 +1,15 @@
 import { ResponseHelper } from './../common/ResponseHelper.filter';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { PagerQueryParams } from '@/common';
+import * as md5 from 'md5';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-    private logger: Logger,
   ) {}
   async create(user: User) {
     const target = await this.userRepository.findOne({
@@ -18,11 +18,15 @@ export class UserService {
       },
     });
     if (target) {
-      this.logger.error('用户已存在');
-      return ResponseHelper.error('用户已存在');
+      return ResponseHelper.error('user already exists');
     } else {
-      const userTmp = this.userRepository.create(user);
-      return this.userRepository.save(userTmp);
+      const userTmp = this.userRepository.create({
+        ...user,
+        password: md5(user.password),
+      });
+      const _user = await this.userRepository.save(userTmp);
+      delete _user.password;
+      return ResponseHelper.success('created successfully');
     }
   }
   async findAll(params: PagerQueryParams) {
@@ -30,6 +34,69 @@ export class UserService {
       skip: (+params.page - 1) * +params.pageSize,
       take: +params.pageSize,
     });
-    return users;
+    return ResponseHelper.success(users);
+  }
+
+  async update(user: User, id: string) {
+    // 白名单禁止修改的key
+    const whiteKeyList: string[] = [];
+    for (const key in user) {
+      if (whiteKeyList.includes(key)) {
+        return ResponseHelper.error(`The ${key} no modification`);
+      }
+    }
+    const userTmp = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+    });
+    if (userTmp === null) {
+      return ResponseHelper.error('the user is not exist');
+    }
+    if ('password' in user) {
+      user.password = md5(user.password);
+    }
+    await this.userRepository.save({ ...userTmp, ...user });
+    return ResponseHelper.success('Successfully modified');
+  }
+
+  async remove(id: string | string[]) {
+    if (typeof id === 'string') {
+      const user = await this.userRepository.findOneBy({ id });
+      if (!user) {
+        return ResponseHelper.error('User with ID ${id} not found');
+      }
+      try {
+        await this.userRepository.remove(user);
+        return ResponseHelper.success('successfully deleted');
+      } catch (error) {
+        return ResponseHelper.error('User deletion failed');
+      }
+    }
+
+    if (Array.isArray(id)) {
+      try {
+        await this.userRepository
+          .createQueryBuilder()
+          .delete()
+          .where(`id IN (:...ids)`, { ids: id })
+          .execute();
+        return ResponseHelper.success('successfully deleted');
+      } catch (error) {
+        return ResponseHelper.error('User deletion failed');
+      }
+    }
+    return ResponseHelper.error('The `id` is irregular parameter');
+  }
+
+  async login(body: { userName: string; password: string }) {
+    const user = await this.userRepository.findOneBy({
+      userName: body.userName,
+    });
+    if (user.password === md5(body.password)) {
+      console.log('成功');
+      return '成功';
+    }
+    return ResponseHelper.error('Incorrect username or password');
   }
 }
