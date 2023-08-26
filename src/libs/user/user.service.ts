@@ -31,7 +31,12 @@ export class UserService {
       return ResponseHelper.success('created successfully');
     }
   }
-  async findAll(params: PagerQueryParams) {
+  async findAll(_params: PagerQueryParams) {
+    const params = {
+      page: 1,
+      pageSize: 10,
+      ..._params,
+    };
     const users = await this.userRepository.find({
       skip: (+params.page - 1) * +params.pageSize,
       take: +params.pageSize,

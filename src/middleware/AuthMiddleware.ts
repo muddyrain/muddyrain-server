@@ -1,18 +1,9 @@
 import { ResponseHelper } from '@/common/ResponseHelper.filter';
 import { PRIVATE_KEY, envConfig } from '@/constant/config';
-import { NestMiddleware, RequestMethod } from '@nestjs/common';
+import { NestMiddleware } from '@nestjs/common';
 import { Response, Request, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
-
-const whiteRoutePathList: {
-  path: string;
-  method: keyof typeof RequestMethod;
-}[] = [
-  {
-    path: '/user/login',
-    method: 'POST',
-  },
-];
+import { whiteRoutePathList } from './AuthWhiteRoutePathList';
 
 export class AuthMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
@@ -22,11 +13,11 @@ export class AuthMiddleware implements NestMiddleware {
      * 受白名单保护的路径 和 受白名单方式保护的
      * 不受token校验
      */
-    if (
-      whiteRoutePathList.some(
-        (route) => route.path === currentUrl && route.method === req.method,
-      )
-    ) {
+    const isWhiteListed = whiteRoutePathList.some((route) => {
+      const pathMatch = route.path.test(currentUrl);
+      return pathMatch && route.method === req.method;
+    });
+    if (isWhiteListed) {
       return next();
     }
     if (!token) {

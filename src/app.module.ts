@@ -15,6 +15,8 @@ import { LogService } from './libs/log/log.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Log } from './libs/log/log.entity';
 import { AuthMiddleware } from './middleware/AuthMiddleware';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { FormatDateInterceptor } from './Interceptors/FormatDateInterceptor';
 
 // 环境变量文件路径
 const envFilePath = `.env.${process.env.NODE_ENV}`;
@@ -31,7 +33,14 @@ const envFilePath = `.env.${process.env.NODE_ENV}`;
     UserModule,
     BannerModule,
   ],
-  providers: [Logger, LogService],
+  providers: [
+    Logger,
+    LogService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: FormatDateInterceptor,
+    },
+  ],
   exports: [Logger],
 })
 export class AppModule implements NestModule {

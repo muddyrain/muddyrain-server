@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -34,7 +35,7 @@ export class UserController {
     return this.userService.login(body);
   }
 
-  @Post(':id')
+  @Put(':id')
   update(@Body() body: any, @Param() param: ParamsType) {
     return this.userService.update(body, param.id);
   }
