@@ -5,15 +5,15 @@ export const whiteRoutePathList: {
   method: keyof typeof RequestMethod;
 }[] = [
   {
-    path: /^\/user/,
-    method: 'GET',
+    path: /^\/user\/login/,
+    method: 'POST',
   },
   {
     path: /^\/banner/,
     method: 'GET',
   },
-  {
-    path: /^\/user\/.*$/,
-    method: 'PUT',
-  },
+  // {
+  //   path: /^\/user\/.*$/,
+  //   method: 'PUT',
+  // },
 ];

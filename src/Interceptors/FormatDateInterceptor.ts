@@ -15,16 +15,19 @@ export class FormatDateInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map((res) => {
-        const data = res.data;
-        if (Array.isArray(data)) {
+        const _data = res.data;
+        if (Array.isArray(_data?.data)) {
           return {
             ...res,
-            data: data.map((item) => this.formatItem(item)),
+            data: {
+              ..._data,
+              data: _data.data.map((item) => this.formatItem(item)),
+            },
           };
-        } else if (isObject(data)) {
+        } else if (isObject(_data)) {
           return {
             ...res,
-            data: this.formatItem(data),
+            data: this.formatItem(_data),
           };
         }
         return res;
@@ -34,12 +37,12 @@ export class FormatDateInterceptor implements NestInterceptor {
 
   private formatItem(item: any): any {
     if (item.createTime instanceof Date) {
-      item.formatted_create_time = dayjs(item.create_time).format(
+      item.formatted_create_time = dayjs(item.createTime).format(
         DATE_FORMATE_TYPE,
       );
     }
     if (item.updateTime instanceof Date) {
-      item.formatted_update_time = dayjs(item.update_time).format(
+      item.formatted_update_time = dayjs(item.updateTime).format(
         DATE_FORMATE_TYPE,
       );
     }

@@ -17,6 +17,8 @@ import { Log } from './libs/log/log.entity';
 import { AuthMiddleware } from './middleware/AuthMiddleware';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { FormatDateInterceptor } from './Interceptors/FormatDateInterceptor';
+import { ArticleModule } from './libs/article/article.module';
+import { UtilsModule } from './libs/utils/utils.module';
 
 // 环境变量文件路径
 const envFilePath = `.env.${process.env.NODE_ENV}`;
@@ -32,6 +34,8 @@ const envFilePath = `.env.${process.env.NODE_ENV}`;
     DatabaseModule,
     UserModule,
     BannerModule,
+    ArticleModule,
+    UtilsModule,
   ],
   providers: [
     Logger,

@@ -1,4 +1,4 @@
-import { CreateDateColumn, Entity, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, UpdateDateColumn } from 'typeorm';
 
 @Entity()
 export class CommonEntity {
@@ -13,4 +13,9 @@ export class CommonEntity {
     type: 'timestamp',
   })
   updateTime: Date;
+
+  @Column({
+    default: false,
+  })
+  isDelete: boolean;
 }

@@ -7,8 +7,21 @@ export class Article extends CommonEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   title: string;
+
+  @Column({
+    nullable: true,
+  })
+  theme: string;
+
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
+  content: string;
 
   @ManyToOne(() => User, (user) => user.articles)
   user: User;
