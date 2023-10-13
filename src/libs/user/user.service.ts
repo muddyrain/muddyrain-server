@@ -40,8 +40,17 @@ export class UserService {
     const users = await this.userRepository.find({
       skip: (+params.page - 1) * +params.pageSize,
       take: +params.pageSize,
+      where: {
+        isDelete: false,
+      },
     });
-    return ResponseHelper.success(users);
+    const total = await this.userRepository.count();
+    return ResponseHelper.success({
+      data: users,
+      ...params,
+      total,
+      isFormate: true,
+    });
   }
 
   async update(user: User, id: string) {

@@ -16,12 +16,19 @@ export class FormatDateInterceptor implements NestInterceptor {
     return next.handle().pipe(
       map((res) => {
         const _data = res.data;
-        if (Array.isArray(_data?.data)) {
+        const _data2 = res.data?.data;
+        if (Array.isArray(_data)) {
+          return {
+            ...res,
+            data: _data.map((item) => this.formatItem(item)),
+          };
+        }
+        if (Array.isArray(_data2)) {
           return {
             ...res,
             data: {
               ..._data,
-              data: _data.data.map((item) => this.formatItem(item)),
+              data: _data2.map((item) => this.formatItem(item)),
             },
           };
         } else if (isObject(_data)) {

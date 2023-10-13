@@ -23,11 +23,13 @@ export class AuthMiddleware implements NestMiddleware {
     if (!token) {
       return res.status(401).json(ResponseHelper.error('Missing token', 401));
     }
-
-    const isValidToken = jwt.verify(token, PRIVATE_KEY);
-    if (!isValidToken) {
-      return res.status(401).json(ResponseHelper.error('Invalid token', 401));
-    }
+    jwt.verify(token, PRIVATE_KEY, (err) => {
+      if (err) {
+        res.status(401);
+        return res.json(ResponseHelper.error('Invalid token', 401));
+      }
+      return true;
+    });
     next();
   }
 }

@@ -4,7 +4,6 @@ import {
   MiddlewareConsumer,
   Module,
   NestModule,
-  RequestMethod,
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as dotenv from 'dotenv';
