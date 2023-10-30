@@ -1,5 +1,8 @@
 import * as dotenv from 'dotenv';
+import * as fs from 'fs';
 const envFilePath = `.env.${process.env.NODE_ENV}`;
+const isHasLocal = fs.existsSync(envFilePath + '.local');
+
 interface envTypes {
   NODE_ENV: string;
   PORT: number;
@@ -18,7 +21,7 @@ interface envTypes {
 }
 export const envConfig = (variable: keyof envTypes) => {
   return dotenv.configDotenv({
-    path: envFilePath,
+    path: `${envFilePath}${isHasLocal && '.local'}`,
   }).parsed[variable];
 };
 
