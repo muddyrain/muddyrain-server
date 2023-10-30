@@ -17,6 +17,10 @@ export const whiteRoutePathList: {
     method: 'GET',
   },
   // {
+  //   path: /^\/user/,
+  //   method: 'POST',
+  // },
+  // {
   //   path: /^\/user\/.*$/,
   //   method: 'PUT',
   // },
