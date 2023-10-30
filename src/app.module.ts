@@ -17,8 +17,8 @@ import { AuthMiddleware } from './middleware/AuthMiddleware';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { FormatDateInterceptor } from './Interceptors/FormatDateInterceptor';
 import { ArticleModule } from './libs/article/article.module';
+import { ChatModule } from './libs/chat/chat.module';
 import { UtilsModule } from './libs/utils/utils.module';
-import { MessageModule } from './libs/message/message.module';
 
 // 环境变量文件路径
 const envFilePath = `.env.${process.env.NODE_ENV}`;
@@ -34,9 +34,9 @@ const envFilePath = `.env.${process.env.NODE_ENV}`;
     DatabaseModule,
     UserModule,
     BannerModule,
+    ChatModule,
     ArticleModule,
     UtilsModule,
-    MessageModule,
   ],
   providers: [
     Logger,

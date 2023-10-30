@@ -1,11 +1,8 @@
 import { CommonEntity } from '@/common/commonEntity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { User } from '../user/user.entity';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({
-  database: '',
-})
-export class Message extends CommonEntity {
+@Entity()
+export class Chat extends CommonEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
