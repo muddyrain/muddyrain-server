@@ -24,7 +24,6 @@ export class AuthMiddleware implements NestMiddleware {
       return res.status(401).json(ResponseHelper.error('Missing token', 401));
     } else {
       jwt.verify(token, PRIVATE_KEY, (err) => {
-        console.log('err', err);
         if (err) {
           return res
             .status(401)

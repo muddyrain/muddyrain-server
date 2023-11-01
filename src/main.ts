@@ -7,7 +7,7 @@ import { WsAdapter } from '@nestjs/platform-ws';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     cors: true,
-    logger: ['error', 'warn'],
+    logger: ['error', 'warn', 'log'],
   });
   app.useWebSocketAdapter(new WsAdapter(app));
   // 设置全局前缀
