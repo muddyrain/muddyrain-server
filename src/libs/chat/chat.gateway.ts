@@ -1,30 +1,48 @@
 import {
-  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { Server, WebSocket } from 'ws';
 
-@WebSocketGateway({
-  cors: {
-    origin: '*',
-  },
-})
+interface MessageType {
+  type: string;
+  payload: any;
+}
+@WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  @WebSocketServer() server: Server;
+  @WebSocketServer()
+  server: Server;
 
-  handleConnection(client: any, ...args: any[]) {
-    console.log('新连接已建立');
+  handleConnection(client: WebSocket): void {
+    // 当客户端连接时触发
+    console.log('客户端连接进来');
+    client.on('message', (message) => {
+      const messageString = message.toString();
+      const data: MessageType = JSON.parse(messageString || '{}');
+      if (data?.type) {
+        switch (data.type) {
+          case 'chat':
+            this.handleChatMessage(data.payload || '');
+        }
+      }
+
+      // // 发送消息给客户端
+      // this.server.clients.forEach((client) => {
+      //   if (client.readyState === WebSocket.OPEN) {
+      //     client.send('Hello from server!');
+      //   }
+      // });
+    });
   }
 
-  handleDisconnect(client: any) {
-    console.log('连接已断开');
+  handleChatMessage(message: any) {
+    console.log('handleChatMessage', message);
   }
 
-  @SubscribeMessage('message')
-  handleMessage(client: any, payload: any) {
-    console.log('接收到消息：', payload);
+  handleDisconnect(client: WebSocket): void {
+    // 当客户端断开连接时触发
+    console.log('Client disconnected:');
   }
 }
