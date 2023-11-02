@@ -106,10 +106,12 @@ export class UserService {
   }
 
   async login(body: { userName: string; password: string }) {
+    if (!body.userName || !body.password)
+      return ResponseHelper.error('Incorrect username or password');
     const user = await this.userRepository.findOneBy({
       userName: body.userName,
     });
-    if (user.password === md5(body.password)) {
+    if (user && user.password === md5(body.password)) {
       const token = jwt.sign({ ...user }, PRIVATE_KEY, {
         expiresIn: '30d',
         header: {
