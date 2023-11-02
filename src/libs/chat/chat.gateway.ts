@@ -29,6 +29,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     Logger.log('客户端已连接', 'ChatGateway');
     const clientConnectUrl: string = req.url;
     const { token } = qs.parse(clientConnectUrl.split('?')[1]);
+    if (!token) {
+      client.send(this.toMessage('event', 'The token authentication failed'));
+      client.close();
+      return;
+    }
     this.verifyToken(client, token as string).then((decoded: User) => {
       this.users.set(decoded.id, client);
       client.userId = decoded.id;
