@@ -29,34 +29,45 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     Logger.log('客户端已连接', 'ChatGateway');
     const clientConnectUrl: string = req.url;
     const { token } = qs.parse(clientConnectUrl.split('?')[1]);
-    if (!token) {
+    if (!token || typeof token !== 'string') {
       client.send(this.toMessage('event', 'The token authentication failed'));
-      client.close();
+      setTimeout(() => {
+        client.close();
+      }, 1000);
       return;
     }
-    this.verifyToken(client, token as string).then((decoded: User) => {
-      this.users.set(decoded.id, client);
-      client.userId = decoded.id;
-      console.log(`用户${decoded.id}已连接`);
-      client.send(this.toMessage('event', 'The token authentication success'));
-      client.on('message', (message) => {
-        const messageString = message.toString();
-        const data: MessageType = JSON.parse(messageString || '{}');
-        if (data?.type) {
-          switch (data.type) {
-            case 'chat': {
-              const payload = data.payload as Chat;
-              this.server.clients.forEach((client: CustomWebSocket) => {
-                if (payload.receiver_id === client.userId) {
-                  client.send(this.toMessage('chat', payload));
-                }
-              });
-              this.handleChatMessage(data.payload || '');
+
+    this.verifyToken(client, token as string)
+      .then((decoded: User) => {
+        this.users.set(decoded.id, client);
+        client.userId = decoded.id;
+        console.log(`用户${decoded.id}已连接`);
+        client.send(
+          this.toMessage('event', 'The token authentication success'),
+        );
+        client.on('message', (message) => {
+          const messageString = message.toString();
+          const data: MessageType = JSON.parse(messageString || '{}');
+          if (data?.type) {
+            switch (data.type) {
+              case 'chat': {
+                const payload = data.payload as Chat;
+                this.server.clients.forEach((client: CustomWebSocket) => {
+                  if (payload.receiver_id === client.userId) {
+                    client.send(this.toMessage('chat', payload));
+                  }
+                });
+                this.handleChatMessage(data.payload || '');
+              }
             }
           }
-        }
+        });
+      })
+      .catch(() => {
+        setTimeout(() => {
+          client.close();
+        }, 1000);
       });
-    });
   }
 
   handleChatMessage(message: any) {
@@ -85,7 +96,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           client.send(
             this.toMessage('event', 'The token authentication failed'),
           );
-          client.close();
+          setTimeout(() => {
+            client.close();
+          }, 1000);
         } else {
           resolve(decoded);
         }
