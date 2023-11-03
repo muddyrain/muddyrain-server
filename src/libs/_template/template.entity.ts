@@ -1,9 +1,7 @@
 import { CommonEntity } from '@/common/commonEntity';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({
-  database: '',
-})
+@Entity()
 export class Template extends CommonEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

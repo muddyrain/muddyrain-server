@@ -9,17 +9,20 @@ export class Article extends CommonEntity {
 
   @Column({
     nullable: true,
+    comment: '文章标题',
   })
   title: string;
 
   @Column({
     nullable: true,
+    comment: '文章主题',
   })
   theme: string;
 
   @Column({
     type: 'text',
     nullable: true,
+    comment: '文章内容',
   })
   content: string;
 

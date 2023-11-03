@@ -1,6 +1,7 @@
 import { CommonEntity } from '@/common/commonEntity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Article } from '../article/article.entity';
+import { Picture } from '../picture/picture.entity';
 
 @Entity()
 export class User extends CommonEntity {
@@ -36,4 +37,7 @@ export class User extends CommonEntity {
 
   @OneToMany(() => Article, (article) => article.user)
   articles: Article[];
+
+  @OneToMany(() => Picture, (picture) => picture.user)
+  pictures: Picture[];
 }

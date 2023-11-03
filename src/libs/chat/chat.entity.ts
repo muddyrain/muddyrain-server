@@ -8,16 +8,19 @@ export class Chat extends CommonEntity {
 
   @Column({
     nullable: false,
+    comment: '发送者id',
   })
   sender_id: string;
 
   @Column({
     nullable: false,
+    comment: '接收者id',
   })
   receiver_id: string;
 
   @Column({
     nullable: false,
+    comment: '内容',
   })
   content: string;
 }
