@@ -21,7 +21,7 @@ interface envTypes {
 }
 export const envConfig = (variable: keyof envTypes) => {
   return dotenv.configDotenv({
-    path: `${envFilePath}${isHasLocal && '.local'}`,
+    path: `${envFilePath}${isHasLocal ? '.local' : ''}`,
   }).parsed[variable];
 };
 
