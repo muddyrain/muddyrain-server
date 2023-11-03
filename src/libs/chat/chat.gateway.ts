@@ -11,6 +11,8 @@ import { PRIVATE_KEY } from '@/constant/config';
 import { Logger } from '@nestjs/common';
 import { Chat } from './chat.entity';
 import { User } from '../user/user.entity';
+import { ChatService } from './chat.service';
+import { formateTime } from '@/utils';
 interface MessageType {
   type: 'chat' | 'event' | 'status';
   payload: any;
@@ -21,6 +23,8 @@ interface CustomWebSocket extends WebSocket {
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(private readonly chatService: ChatService) {}
+
   @WebSocketServer()
   server: Server;
   private users = new Map<string, WebSocket>();
@@ -45,19 +49,29 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.send(
           this.toMessage('event', 'The token authentication success'),
         );
-        client.on('message', (message) => {
+        client.on('message', async (message) => {
           const messageString = message.toString();
           const data: MessageType = JSON.parse(messageString || '{}');
           if (data?.type) {
             switch (data.type) {
               case 'chat': {
                 const payload = data.payload as Chat;
+                const _chat = await this.chatService.create(payload);
+                const chat = {
+                  ..._chat,
+                  formatted_create_time: formateTime(_chat.createTime),
+                  formatted_update_time: formateTime(_chat.updateTime),
+                };
                 this.server.clients.forEach((client: CustomWebSocket) => {
                   if (payload.receiver_id === client.userId) {
-                    client.send(this.toMessage('chat', payload));
+                    client.send(
+                      this.toMessage('chat', {
+                        ...chat,
+                      }),
+                    );
                   }
                 });
-                this.handleChatMessage(data.payload || '');
+                this.handleChatMessage(chat);
               }
             }
           }
