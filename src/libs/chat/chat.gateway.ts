@@ -55,23 +55,32 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           if (data?.type) {
             switch (data.type) {
               case 'chat': {
-                const payload = data.payload as Chat;
-                const _chat = await this.chatService.create(payload);
-                const chat = {
-                  ..._chat,
-                  formatted_create_time: formateTime(_chat.createTime),
-                  formatted_update_time: formateTime(_chat.updateTime),
-                };
-                this.server.clients.forEach((client: CustomWebSocket) => {
-                  if (payload.receiver_id === client.userId) {
-                    client.send(
-                      this.toMessage('chat', {
-                        ...chat,
-                      }),
-                    );
-                  }
-                });
-                this.handleChatMessage(chat);
+                try {
+                  const payload = data.payload as Chat;
+                  const _chat = await this.chatService.create(payload);
+                  const chat = {
+                    ..._chat,
+                    formatted_create_time: formateTime(_chat.createTime),
+                    formatted_update_time: formateTime(_chat.updateTime),
+                  };
+                  this.server.clients.forEach((client: CustomWebSocket) => {
+                    if (_chat?.receiver_id === client.userId) {
+                      client.send(
+                        this.toMessage('chat', {
+                          ...chat,
+                        }),
+                      );
+                    }
+                  });
+                  this.handleChatMessage(chat);
+                } catch (error) {
+                  client.send(
+                    this.toMessage('event', {
+                      message: 'The chat send failed',
+                      data: error,
+                    }),
+                  );
+                }
               }
             }
           }
