@@ -20,7 +20,7 @@ export class UserService {
       },
     });
     if (target) {
-      return ResponseHelper.error('user already exists');
+      return ResponseHelper.error('用户已存在');
     } else {
       const userTmp = this.userRepository.create({
         ...user,
@@ -28,7 +28,7 @@ export class UserService {
       });
       const _user = await this.userRepository.save(userTmp);
       delete _user.password;
-      return ResponseHelper.success('created successfully');
+      return ResponseHelper.success('创建成功');
     }
   }
   async findAll(_params: PagerQueryParams) {
@@ -58,7 +58,7 @@ export class UserService {
     const whiteKeyList: string[] = [];
     for (const key in user) {
       if (whiteKeyList.includes(key)) {
-        return ResponseHelper.error(`The ${key} no modification`);
+        return ResponseHelper.error(`The ${key} 不可以修改`);
       }
     }
     const userTmp = await this.userRepository.findOne({
@@ -67,26 +67,26 @@ export class UserService {
       },
     });
     if (userTmp === null) {
-      return ResponseHelper.error('the user is not exist');
+      return ResponseHelper.error('该用户不存在');
     }
     if ('password' in user) {
       user.password = md5(user.password);
     }
     await this.userRepository.save({ ...userTmp, ...user });
-    return ResponseHelper.success('Successfully modified');
+    return ResponseHelper.success('修改成功');
   }
 
   async remove(id: string | string[]) {
     if (typeof id === 'string') {
       const user = await this.userRepository.findOneBy({ id });
       if (!user) {
-        return ResponseHelper.error('User with ID ${id} not found');
+        return ResponseHelper.error(`未找到 ID 为 ${id} 的用户`);
       }
       try {
         await this.userRepository.remove(user);
-        return ResponseHelper.success('successfully deleted');
+        return ResponseHelper.success('删除成功');
       } catch (error) {
-        return ResponseHelper.error('User deletion failed');
+        return ResponseHelper.error('用户删除失败');
       }
     }
 
@@ -97,17 +97,17 @@ export class UserService {
           .delete()
           .where(`id IN (:...ids)`, { ids: id })
           .execute();
-        return ResponseHelper.success('successfully deleted');
+        return ResponseHelper.success('删除成功');
       } catch (error) {
-        return ResponseHelper.error('User deletion failed');
+        return ResponseHelper.error('用户删除失败');
       }
     }
-    return ResponseHelper.error('The `id` is irregular parameter');
+    return ResponseHelper.error('`id` 是不规则参数');
   }
 
   async login(body: { userName: string; password: string }) {
     if (!body.userName || !body.password)
-      return ResponseHelper.error('Incorrect username or password');
+      return ResponseHelper.error('用户名或密码错误');
     const user = await this.userRepository.findOneBy({
       userName: body.userName,
     });
@@ -124,6 +124,6 @@ export class UserService {
         ...user,
       });
     }
-    return ResponseHelper.error('Incorrect username or password');
+    return ResponseHelper.error('用户名或密码错误');
   }
 }

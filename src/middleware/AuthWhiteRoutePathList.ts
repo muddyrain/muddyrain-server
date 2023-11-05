@@ -9,6 +9,10 @@ export const whiteRoutePathList: {
     method: 'POST',
   },
   {
+    path: /^\/user\/register/,
+    method: 'POST',
+  },
+  {
     path: /^\/utils\/upload/,
     method: 'POST',
   },

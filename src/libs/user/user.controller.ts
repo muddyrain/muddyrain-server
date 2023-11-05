@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { PagerQueryParams, ParamsType } from '@/common';
+import { User } from './user.entity';
 
 @Controller('user')
 export class UserController {
@@ -33,6 +34,11 @@ export class UserController {
   @Post('login')
   login(@Body() body: { userName: string; password: string }) {
     return this.userService.login(body);
+  }
+
+  @Post('register')
+  register(@Body() body: User) {
+    return this.userService.create(body);
   }
 
   @Put(':id')

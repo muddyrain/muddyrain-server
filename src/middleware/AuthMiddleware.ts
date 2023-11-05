@@ -4,7 +4,6 @@ import { NestMiddleware } from '@nestjs/common';
 import { Response, Request, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { whiteRoutePathList } from './AuthWhiteRoutePathList';
-
 export class AuthMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const token = req.headers['authorization'];
@@ -20,6 +19,7 @@ export class AuthMiddleware implements NestMiddleware {
     if (isWhiteListed) {
       return next();
     }
+
     if (!token) {
       return res.status(401).json(ResponseHelper.error('Missing token', 401));
     } else {
