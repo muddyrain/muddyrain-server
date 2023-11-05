@@ -9,6 +9,9 @@ async function bootstrap() {
     cors: true,
     logger: ['error', 'warn', 'log'],
   });
+  // 允许跨域
+  app.enableCors();
+  // 使用websocket
   app.useWebSocketAdapter(new WsAdapter(app));
   // 设置全局前缀
   app.setGlobalPrefix(envConfig('GLOBAL_PREFIX'));
