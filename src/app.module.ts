@@ -13,12 +13,12 @@ import { BannerModule } from './libs/banner/banner.module';
 import { LogService } from './libs/log/log.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Log } from './libs/log/log.entity';
-import { AuthMiddleware } from './middleware/AuthMiddleware';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { FormatDateInterceptor } from './Interceptors/FormatDateInterceptor';
 import { ArticleModule } from './libs/article/article.module';
 import { ChatModule } from './libs/chat/chat.module';
 import { UtilsModule } from './libs/utils/utils.module';
+import { GlobalAuthGuard } from './guard/auth.guard';
 
 // 环境变量文件路径
 const envFilePath = `.env.${process.env.NODE_ENV}`;
@@ -45,12 +45,15 @@ const envFilePath = `.env.${process.env.NODE_ENV}`;
       provide: APP_INTERCEPTOR,
       useClass: FormatDateInterceptor,
     },
+    {
+      provide: APP_GUARD,
+      useClass: GlobalAuthGuard,
+    },
   ],
   exports: [Logger],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('*'); // 替换为您需要保护的路由
     // 对所有路由应用自定义 Logger
     consumer.apply(LogService).forRoutes('*');
   }

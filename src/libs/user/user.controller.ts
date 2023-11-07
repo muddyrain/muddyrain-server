@@ -11,6 +11,7 @@ import {
 import { UserService } from './user.service';
 import { PagerQueryParams, ParamsType } from '@/common';
 import { User } from './user.entity';
+import { AuthPublicMeta } from '@/decorators/AuthPublicMeta.decorator';
 
 @Controller('user')
 export class UserController {
@@ -32,6 +33,7 @@ export class UserController {
   }
 
   @Post('login')
+  @AuthPublicMeta()
   login(@Body() body: { userName: string; password: string }) {
     return this.userService.login(body);
   }

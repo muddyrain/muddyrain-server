@@ -10,6 +10,7 @@ import { UtilsService } from './utils.service';
 @Controller('utils')
 export class UtilsController {
   constructor(private readonly templateService: UtilsService) {}
+
   @Post('/upload')
   @UseInterceptors(FileInterceptor('file'))
   async upload(@UploadedFile() file: Express.Multer.File) {

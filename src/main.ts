@@ -1,9 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { envConfig } from './constant/config';
-import { HttpExceptionFilter } from './common/httpException.filter';
+import { HttpExceptionFilter } from './filter/httpException.filter';
 import { Logger } from '@nestjs/common';
 import { WsAdapter } from '@nestjs/platform-ws';
+import 'reflect-metadata';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     cors: true,

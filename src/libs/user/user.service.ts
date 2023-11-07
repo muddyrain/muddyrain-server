@@ -113,7 +113,7 @@ export class UserService {
     });
     if (user && user.password === md5(body.password)) {
       const token = jwt.sign({ ...user }, PRIVATE_KEY, {
-        expiresIn: '30d',
+        expiresIn: '7d',
         header: {
           typ: 'JWT',
           alg: 'HS256',
