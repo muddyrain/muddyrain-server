@@ -15,7 +15,7 @@ export class ArticleService {
     try {
       const tmp = this.ArticleRepository.create(body);
       await this.ArticleRepository.save(tmp);
-      return ResponseHelper.success('Successfully created');
+      return ResponseHelper.success(tmp);
     } catch (error) {
       return ResponseHelper.error(error);
     }

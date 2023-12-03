@@ -47,8 +47,9 @@ export class Article extends CommonEntity {
   @Column({
     nullable: true,
     comment: '文章封面',
+    type: 'text',
   })
-  coverPath: string;
+  cover: string;
 
   @ManyToOne(() => User, (user) => user.articles)
   user: User;
