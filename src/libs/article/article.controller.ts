@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { PagerQueryParams, ParamsType } from '@/common';
+import { AuthPublicMeta } from '@/decorators/AuthPublicMeta.decorator';
 
 @Controller('article')
 export class ArticleController {
@@ -25,6 +26,7 @@ export class ArticleController {
   }
 
   @Get()
+  @AuthPublicMeta()
   getAll(@Query() query: PagerQueryParams) {
     return this.articleService.findAll(query);
   }

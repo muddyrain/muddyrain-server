@@ -6,7 +6,9 @@ export class Log extends CommonEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({
+    type: 'text',
+  })
   message: string;
 
   @Column()

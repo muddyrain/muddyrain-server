@@ -38,6 +38,13 @@ export class Article extends CommonEntity {
   content: string;
 
   @Column({
+    type: 'text',
+    nullable: false,
+    comment: '简要内容',
+  })
+  brief_content: string;
+
+  @Column({
     comment: '文章标签',
     type: 'int',
     nullable: false,

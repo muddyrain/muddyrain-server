@@ -4,7 +4,9 @@ import { Article } from './article.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseHelper, ResponseReturn } from '@/common/ResponseHelper.filter';
 import { PagerQueryParams } from '@/common';
-
+import * as TurndownService from 'turndown';
+import { truncateString } from '@/utils';
+const turndownService = new TurndownService();
 @Injectable()
 export class ArticleService {
   constructor(
@@ -13,7 +15,13 @@ export class ArticleService {
   ) {}
   async create(body: Article) {
     try {
-      const tmp = this.ArticleRepository.create(body);
+      const tmp = this.ArticleRepository.create({
+        ...body,
+        brief_content: truncateString(
+          turndownService.turndown(body.content),
+          100,
+        ),
+      });
       await this.ArticleRepository.save(tmp);
       return ResponseHelper.success(tmp);
     } catch (error) {
