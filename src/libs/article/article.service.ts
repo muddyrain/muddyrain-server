@@ -43,6 +43,7 @@ export class ArticleService {
       where: {
         id,
       },
+      relations: ['user'],
     });
     return ResponseHelper.success(userTmp);
   }
