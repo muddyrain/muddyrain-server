@@ -18,6 +18,9 @@ interface envTypes {
   MINIO_USE_SSL: string;
   MINIO_AK: string;
   MINIO_SK: string;
+  REDIS_HOST: string;
+  REDIS_PORT: string;
+  REDIS_PASSWORD: string;
 }
 export const envConfig = (variable: keyof envTypes) => {
   return dotenv.configDotenv({

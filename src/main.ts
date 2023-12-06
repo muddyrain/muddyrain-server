@@ -11,6 +11,7 @@ async function bootstrap() {
     cors: true,
     logger: ['error', 'warn', 'log'],
   });
+
   // 允许跨域
   app.enableCors();
   // 使用websocket

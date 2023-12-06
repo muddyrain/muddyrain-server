@@ -1,5 +1,6 @@
 import {
   Global,
+  Inject,
   Logger,
   MiddlewareConsumer,
   Module,
@@ -19,6 +20,9 @@ import { ArticleModule } from './libs/article/article.module';
 import { ChatModule } from './libs/chat/chat.module';
 import { UtilsModule } from './libs/utils/utils.module';
 import { GlobalAuthGuard } from './guard/auth.guard';
+import { ClientProxyFactory, Transport } from '@nestjs/microservices';
+import { envConfig } from './constant/config';
+import { AppService } from './app.service';
 
 // 环境变量文件路径
 const envFilePath = `.env.${process.env.NODE_ENV}`;
@@ -41,6 +45,7 @@ const envFilePath = `.env.${process.env.NODE_ENV}`;
   providers: [
     Logger,
     LogService,
+    AppService,
     {
       provide: APP_INTERCEPTOR,
       useClass: FormatDateInterceptor,
@@ -49,7 +54,21 @@ const envFilePath = `.env.${process.env.NODE_ENV}`;
       provide: APP_GUARD,
       useClass: GlobalAuthGuard,
     },
+    // {
+    //   provide: 'REDIS_CLIENT',
+    //   useFactory: () => {
+    //     return ClientProxyFactory.create({
+    //       transport: Transport.REDIS,
+    //       options: {
+    //         host: envConfig('REDIS_HOST'),
+    //         port: +envConfig('REDIS_PORT'),
+    //         password: envConfig('REDIS_PASSWORD'),
+    //       },
+    //     });
+    //   },
+    // },
   ],
+  // exports: [Logger, 'REDIS_CLIENT'],
   exports: [Logger],
 })
 export class AppModule implements NestModule {

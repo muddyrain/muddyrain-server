@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Article } from './article.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,13 +6,31 @@ import { ResponseHelper, ResponseReturn } from '@/common/ResponseHelper.filter';
 import { PagerQueryParams } from '@/common';
 import * as TurndownService from 'turndown';
 import { truncateString } from '@/utils';
+import {
+  ClientProxy,
+  ClientProxyFactory,
+  Transport,
+} from '@nestjs/microservices';
+import { envConfig } from '@/constant/config';
+
 const turndownService = new TurndownService();
 @Injectable()
 export class ArticleService {
+  private readonly redisClient: ClientProxy;
   constructor(
     @InjectRepository(Article)
-    public readonly ArticleRepository: Repository<Article>,
-  ) {}
+    public readonly ArticleRepository: Repository<Article>, // @Inject('REDIS_CLIENT') private redisClient: ClientProxy,
+  ) {
+    this.redisClient = ClientProxyFactory.create({
+      transport: Transport.REDIS,
+      options: {
+        host: envConfig('REDIS_HOST'),
+        port: +envConfig('REDIS_PORT'),
+        password: envConfig('REDIS_PASSWORD'),
+      },
+    });
+  }
+
   async create(body: Article) {
     try {
       const tmp = this.ArticleRepository.create({
@@ -39,13 +57,34 @@ export class ArticleService {
     return ResponseHelper.success('Successfully modified');
   }
   async getById(id: string) {
-    const userTmp = await this.ArticleRepository.findOne({
-      where: {
-        id,
-      },
-      relations: ['user'],
-    });
-    return ResponseHelper.success(userTmp);
+    try {
+      // const userTmp = await this.ArticleRepository.findOne({
+      //   where: {
+      //     id,
+      //   },
+      //   relations: ['user'],
+      // });
+      // return ResponseHelper.success(userTmp);
+      // 发送消息到指定频道
+      this.redisClient
+        .connect()
+        .then(() => {
+          console.log('redis connect success');
+          const data = {
+            key: 'myKey',
+            value: 'myValue',
+          };
+          this.redisClient.send('my_channel', data);
+        })
+        .finally(() => {
+          this.redisClient.close();
+        });
+
+      // console.log('Redis response:', response);
+      return 1;
+    } catch (error) {
+      return ResponseHelper.error(error);
+    }
   }
 
   async findAll(_params: PagerQueryParams) {
