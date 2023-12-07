@@ -71,8 +71,14 @@ export class ArticleService {
           tmp.preview += 1;
         }
       }
+      const isLike = await this.UserLikeArticleRepository.findOne({
+        where: {
+          userId: user.id,
+          articleId: id,
+        },
+      });
       if (tmp) {
-        return ResponseHelper.success(tmp);
+        return ResponseHelper.success({ ...tmp, isLike: !!isLike });
       } else {
         return ResponseHelper.error(`Article ${id} does not exist`);
       }
