@@ -156,15 +156,15 @@ export class ArticleService {
           articleId: id,
         });
         await this.ArticleRepository.decrement({ id }, 'like', 1);
-        return ResponseHelper.success('Successfully unLiked');
       } else {
         await this.UserLikeArticleRepository.save({
           userId: user.id,
           articleId: id,
         });
         await this.ArticleRepository.increment({ id }, 'like', 1);
-        return ResponseHelper.success('Successfully liked');
       }
+      const tmp = await this.ArticleRepository.findOne({ where: { id } });
+      return ResponseHelper.success(tmp);
     }
   }
 
