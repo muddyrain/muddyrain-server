@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   Param,
   Post,
   Put,
@@ -35,8 +36,13 @@ export class ArticleController {
   remove(@Param() param: ParamsType) {
     return this.articleService.remove(param.id);
   }
+
   @Get(':id')
-  getById(@Param() param: ParamsType) {
-    return this.articleService.getById(param.id);
+  @AuthPublicMeta()
+  getById(
+    @Param() param: ParamsType,
+    @Headers('Authorization') authorization: string,
+  ) {
+    return this.articleService.getById(param.id, authorization);
   }
 }

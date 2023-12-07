@@ -14,7 +14,7 @@ enum ArticleTag {
 }
 @Entity()
 export class Article extends CommonEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('increment')
   id: string;
 
   @Column({
@@ -57,6 +57,13 @@ export class Article extends CommonEntity {
     type: 'text',
   })
   cover: string;
+
+  @Column({
+    nullable: false,
+    comment: '预览次数',
+    default: 0,
+  })
+  preview: number;
 
   @ManyToOne(() => User, (user) => user.articles)
   user: User;

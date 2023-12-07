@@ -1,35 +1,23 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Article } from './article.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseHelper, ResponseReturn } from '@/common/ResponseHelper.filter';
 import { PagerQueryParams } from '@/common';
 import * as TurndownService from 'turndown';
+import * as jwt from 'jsonwebtoken';
 import { truncateString } from '@/utils';
-import {
-  ClientProxy,
-  ClientProxyFactory,
-  Transport,
-} from '@nestjs/microservices';
-import { envConfig } from '@/constant/config';
+import { RedisService } from '@/pipes/redis.pipe';
+import { User } from '../user/user.entity';
 
 const turndownService = new TurndownService();
 @Injectable()
 export class ArticleService {
-  private readonly redisClient: ClientProxy;
   constructor(
     @InjectRepository(Article)
-    public readonly ArticleRepository: Repository<Article>, // @Inject('REDIS_CLIENT') private redisClient: ClientProxy,
-  ) {
-    this.redisClient = ClientProxyFactory.create({
-      transport: Transport.REDIS,
-      options: {
-        host: envConfig('REDIS_HOST'),
-        port: +envConfig('REDIS_PORT'),
-        password: envConfig('REDIS_PASSWORD'),
-      },
-    });
-  }
+    public readonly ArticleRepository: Repository<Article>,
+    private readonly redisService: RedisService,
+  ) {}
 
   async create(body: Article) {
     try {
@@ -56,32 +44,32 @@ export class ArticleService {
     await this.ArticleRepository.save({ ...userTmp, ...body });
     return ResponseHelper.success('Successfully modified');
   }
-  async getById(id: string) {
+  async getById(id: string, authorization: string) {
     try {
-      // const userTmp = await this.ArticleRepository.findOne({
-      //   where: {
-      //     id,
-      //   },
-      //   relations: ['user'],
-      // });
-      // return ResponseHelper.success(userTmp);
+      const user = jwt.decode(authorization) as User;
+      const tmp = await this.ArticleRepository.findOne({
+        where: {
+          id,
+        },
+        relations: ['user'],
+      });
       // 发送消息到指定频道
-      this.redisClient
-        .connect()
-        .then(() => {
-          console.log('redis connect success');
-          const data = {
-            key: 'myKey',
-            value: 'myValue',
-          };
-          this.redisClient.send('my_channel', data);
-        })
-        .finally(() => {
-          this.redisClient.close();
-        });
-
-      // console.log('Redis response:', response);
-      return 1;
+      if (user) {
+        const key = `muddyrain-article-preview-${id}-${user.id}`;
+        const response = await this.redisService.getCache(key);
+        if (!response) {
+          await this.redisService.setCache(key, 1, 60 * 5);
+          // 给文章预览数加一
+          await this.ArticleRepository.increment({ id }, 'preview', 1);
+          // 更新现有的文章预览数
+          tmp.preview += 1;
+        }
+      }
+      if (tmp) {
+        return ResponseHelper.success(tmp);
+      } else {
+        return ResponseHelper.error(`Article ${id} does not exist`);
+      }
     } catch (error) {
       return ResponseHelper.error(error);
     }
