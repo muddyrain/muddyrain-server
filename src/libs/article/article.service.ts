@@ -3,12 +3,14 @@ import { Repository } from 'typeorm';
 import { Article } from './article.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseHelper, ResponseReturn } from '@/common/ResponseHelper.filter';
-import { PagerQueryParams } from '@/common';
+import { PagerQueryParams, PrimaryKeyType } from '@/common';
 import * as TurndownService from 'turndown';
 import * as jwt from 'jsonwebtoken';
 import { truncateString } from '@/utils';
 import { RedisService } from '@/pipes/redis.pipe';
 import { User } from '../user/user.entity';
+import { UserLikeArticle } from './UserLikeArticle.entity';
+import { PRIVATE_KEY } from '@/constant/config';
 
 const turndownService = new TurndownService();
 @Injectable()
@@ -16,6 +18,8 @@ export class ArticleService {
   constructor(
     @InjectRepository(Article)
     public readonly ArticleRepository: Repository<Article>,
+    @InjectRepository(UserLikeArticle)
+    public readonly UserLikeArticleRepository: Repository<UserLikeArticle>,
     private readonly redisService: RedisService,
   ) {}
 
@@ -35,7 +39,7 @@ export class ArticleService {
     }
   }
 
-  async update(body: Article, id: string) {
+  async update(body: Article, id: PrimaryKeyType) {
     const userTmp = await this.ArticleRepository.findOne({
       where: {
         id,
@@ -44,7 +48,7 @@ export class ArticleService {
     await this.ArticleRepository.save({ ...userTmp, ...body });
     return ResponseHelper.success('Successfully modified');
   }
-  async getById(id: string, authorization: string) {
+  async getById(id: PrimaryKeyType, authorization: string) {
     try {
       const user = jwt.decode(authorization) as User;
       const tmp = await this.ArticleRepository.findOne({
@@ -102,9 +106,9 @@ export class ArticleService {
     });
   }
 
-  async remove(ids: string | string[]) {
+  async remove(ids: PrimaryKeyType | PrimaryKeyType[]) {
     const promiseList: Promise<ResponseReturn>[] = [];
-    if (typeof ids === 'string') {
+    if (typeof ids === 'number') {
       ids = [ids];
     }
     for (const id of ids) {
@@ -115,6 +119,44 @@ export class ArticleService {
       return ResponseHelper.success('Successfully deleted');
     } catch (error) {
       return ResponseHelper.error(error);
+    }
+  }
+
+  async like(id: PrimaryKeyType, authorization: string) {
+    if (isNaN(Number(id))) {
+      return ResponseHelper.error('Article id is not a number');
+    }
+    const article = await this.ArticleRepository.findOne({
+      where: {
+        id,
+      },
+    });
+    if (!article) {
+      return ResponseHelper.error('Article not found');
+    }
+    const user = jwt.decode(authorization) as User;
+    if (user) {
+      const userLikeArticle = await this.UserLikeArticleRepository.findOne({
+        where: {
+          userId: user.id,
+          articleId: id,
+        },
+      });
+      if (userLikeArticle) {
+        await this.UserLikeArticleRepository.delete({
+          userId: user.id,
+          articleId: id,
+        });
+        await this.ArticleRepository.decrement({ id }, 'like', 1);
+        return ResponseHelper.success('Successfully unLiked');
+      } else {
+        await this.UserLikeArticleRepository.save({
+          userId: user.id,
+          articleId: id,
+        });
+        await this.ArticleRepository.increment({ id }, 'like', 1);
+        return ResponseHelper.success('Successfully liked');
+      }
     }
   }
 }

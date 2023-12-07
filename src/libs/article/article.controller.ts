@@ -45,4 +45,12 @@ export class ArticleController {
   ) {
     return this.articleService.getById(param.id, authorization);
   }
+
+  @Post('/like/:id')
+  like(
+    @Param() param: ParamsType,
+    @Headers('Authorization') authorization: string,
+  ) {
+    return this.articleService.like(param.id, authorization);
+  }
 }

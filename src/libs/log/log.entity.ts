@@ -1,10 +1,11 @@
+import { PrimaryKeyType } from '@/common';
 import { CommonEntity } from '@/common/commonEntity';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Log extends CommonEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn('increment')
+  id: PrimaryKeyType;
 
   @Column({
     type: 'text',

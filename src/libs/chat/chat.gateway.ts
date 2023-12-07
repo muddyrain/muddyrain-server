@@ -43,8 +43,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.verifyToken(client, token as string)
       .then((decoded: User) => {
-        this.users.set(decoded.id, client);
-        client.userId = decoded.id;
+        this.users.set(decoded.id as string, client);
+        client.userId = decoded.id as string;
         console.log(`用户${decoded.id}已连接`);
         client.send(
           this.toMessage('event', 'The token authentication success'),

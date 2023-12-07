@@ -2,11 +2,12 @@ import { CommonEntity } from '@/common/commonEntity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Article } from '../article/article.entity';
 import { Picture } from '../picture/picture.entity';
+import { PrimaryKeyType } from '@/common';
 
 @Entity()
 export class User extends CommonEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn('increment')
+  id: PrimaryKeyType;
 
   @Column()
   userName: string;

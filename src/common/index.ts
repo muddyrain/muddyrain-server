@@ -10,3 +10,9 @@ export interface PagerQueryParams {
  * 动态路由参数类型
  */
 export type ParamsType = Record<string, string>;
+
+/**
+ * 主键 id 类型
+ */
+
+export type PrimaryKeyType = number | string;

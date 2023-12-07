@@ -1,6 +1,7 @@
 import { CommonEntity } from '@/common/commonEntity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../user/user.entity';
+import { PrimaryKeyType } from '@/common';
 
 enum ArticleTag {
   '前端',
@@ -15,7 +16,7 @@ enum ArticleTag {
 @Entity()
 export class Article extends CommonEntity {
   @PrimaryGeneratedColumn('increment')
-  id: string;
+  id: PrimaryKeyType;
 
   @Column({
     nullable: false,
@@ -67,4 +68,11 @@ export class Article extends CommonEntity {
 
   @ManyToOne(() => User, (user) => user.articles)
   user: User;
+
+  @Column({
+    nullable: false,
+    comment: '点赞次数',
+    default: 0,
+  })
+  like: number;
 }
