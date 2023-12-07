@@ -10,7 +10,7 @@ import { truncateString } from '@/utils';
 import { RedisService } from '@/pipes/redis.pipe';
 import { User } from '../user/user.entity';
 import { UserLikeArticle } from './UserLikeArticle.entity';
-import { PRIVATE_KEY } from '@/constant/config';
+import { Comment } from './Comment.entity';
 
 const turndownService = new TurndownService();
 @Injectable()
@@ -18,6 +18,8 @@ export class ArticleService {
   constructor(
     @InjectRepository(Article)
     public readonly ArticleRepository: Repository<Article>,
+    @InjectRepository(Comment)
+    public readonly CommentRepository: Repository<Comment>,
     @InjectRepository(UserLikeArticle)
     public readonly UserLikeArticleRepository: Repository<UserLikeArticle>,
     private readonly redisService: RedisService,
@@ -158,5 +160,47 @@ export class ArticleService {
         return ResponseHelper.success('Successfully liked');
       }
     }
+  }
+
+  comment(id: PrimaryKeyType, body: Comment, authorization: string) {
+    if (isNaN(Number(id))) {
+      return ResponseHelper.error('Article id is not a number');
+    }
+    const user = jwt.decode(authorization) as User;
+    if (user) {
+      const article = this.ArticleRepository.findOneBy({
+        id,
+      });
+
+      if (article) {
+        const tmp = this.CommentRepository.create({
+          ...body,
+          article_id: id,
+          user_id: user.id,
+          parent_id: body.parent_id || 0,
+        });
+        this.CommentRepository.save(tmp);
+        return ResponseHelper.success('Successfully commented');
+      } else {
+        return ResponseHelper.error('Article not found');
+      }
+    } else {
+      return ResponseHelper.error('Please login first');
+    }
+  }
+
+  async removeComment(commentId: PrimaryKeyType) {
+    if (isNaN(Number(commentId))) {
+      return ResponseHelper.error('Comment id is not a number');
+    }
+    await this.CommentRepository.update(
+      {
+        id: commentId,
+      },
+      {
+        isDelete: true,
+      },
+    );
+    return ResponseHelper.success('Successfully deleted');
   }
 }

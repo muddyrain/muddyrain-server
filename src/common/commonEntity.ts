@@ -1,7 +1,17 @@
-import { Column, CreateDateColumn, Entity, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { PrimaryKeyType } from '.';
 
 @Entity()
 export class CommonEntity {
+  @PrimaryGeneratedColumn('increment')
+  id: PrimaryKeyType;
+
   @CreateDateColumn({
     name: 'create_time',
     type: 'timestamp',

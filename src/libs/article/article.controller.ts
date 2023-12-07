@@ -12,6 +12,7 @@ import {
 import { ArticleService } from './article.service';
 import { PagerQueryParams, ParamsType } from '@/common';
 import { AuthPublicMeta } from '@/decorators/AuthPublicMeta.decorator';
+import { Comment } from './Comment.entity';
 
 @Controller('article')
 export class ArticleController {
@@ -52,5 +53,19 @@ export class ArticleController {
     @Headers('Authorization') authorization: string,
   ) {
     return this.articleService.like(param.id, authorization);
+  }
+
+  @Post('/comment/:id')
+  comment(
+    @Param() param: ParamsType,
+    @Body() body: Comment,
+    @Headers('Authorization') authorization: string,
+  ) {
+    return this.articleService.comment(param.id, body, authorization);
+  }
+
+  @Delete('/comment/:id')
+  removeComment(@Param() param: ParamsType) {
+    return this.articleService.removeComment(param.id);
   }
 }
