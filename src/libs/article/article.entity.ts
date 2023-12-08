@@ -3,7 +3,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../user/user.entity';
 import { PrimaryKeyType } from '@/common';
 
-enum ArticleTag {
+export enum ArticleTag {
   '前端',
   '后端',
   '移动端',

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { Article } from './article.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseHelper, ResponseReturn } from '@/common/ResponseHelper.filter';
@@ -91,10 +91,12 @@ export class ArticleService {
     const params = {
       page: 1,
       pageSize: 10,
+      tag: undefined,
       ..._params,
     };
-    const filter = {
+    const filter: FindOptionsWhere<Article> = {
       isDelete: false,
+      tag: params.tag,
     };
     const data = await this.ArticleRepository.find({
       skip: (+params.page - 1) * +params.pageSize,

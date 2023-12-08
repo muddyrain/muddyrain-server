@@ -13,6 +13,7 @@ import { ArticleService } from './article.service';
 import { PagerQueryParams, ParamsType } from '@/common';
 import { AuthPublicMeta } from '@/decorators/AuthPublicMeta.decorator';
 import { Comment } from './Comment.entity';
+import { ArticleTag } from './article.entity';
 
 @Controller('article')
 export class ArticleController {
@@ -29,7 +30,7 @@ export class ArticleController {
 
   @Get()
   @AuthPublicMeta()
-  getAll(@Query() query: PagerQueryParams) {
+  getAll(@Query() query: PagerQueryParams & { tag: ArticleTag }) {
     return this.articleService.findAll(query);
   }
 
