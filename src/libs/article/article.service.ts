@@ -112,12 +112,17 @@ export class ArticleService {
       });
     const user = jwt.decode(authorization) as User;
     for (const item of data) {
-      const isUserLikeArticle = await this.UserLikeArticleRepository.findOneBy({
-        userId: user?.id,
-        articleId: item.id,
-      });
-      if (isUserLikeArticle) {
-        item.isLike = true;
+      if (user?.id) {
+        const isUserLikeArticle =
+          await this.UserLikeArticleRepository.findOneBy({
+            userId: user?.id,
+            articleId: item.id,
+          });
+        if (isUserLikeArticle) {
+          item.isLike = true;
+        } else {
+          item.isLike = false;
+        }
       } else {
         item.isLike = false;
       }
