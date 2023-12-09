@@ -53,12 +53,12 @@ export class ArticleService {
   async getById(id: PrimaryKeyType, authorization: string) {
     try {
       const user = jwt.decode(authorization) as User;
-      const tmp = await this.ArticleRepository.findOne({
+      const tmp = (await this.ArticleRepository.findOne({
         where: {
           id,
         },
         relations: ['user'],
-      });
+      })) as Article & { isLike?: boolean };
       // 发送消息到指定频道
       if (user) {
         const key = `muddyrain-article-preview-${id}-${user.id}`;
@@ -70,16 +70,24 @@ export class ArticleService {
           tmp.preview = tmp.preview + 1;
         }
       }
-      const isLike = await this.UserLikeArticleRepository.findOne({
-        where: {
-          userId: user.id,
-          articleId: id,
-        },
-      });
+      if (user?.id) {
+        const isLike = await this.UserLikeArticleRepository.findOne({
+          where: {
+            userId: user.id,
+            articleId: id,
+          },
+        });
+        if (isLike) {
+          tmp.isLike = true;
+        } else {
+          tmp.isLike = false;
+        }
+      } else {
+        tmp.isLike = false;
+      }
       if (tmp) {
         return ResponseHelper.success({
           ...tmp,
-          isLike: !!isLike,
         });
       } else {
         return ResponseHelper.error(`Article ${id} does not exist`);
