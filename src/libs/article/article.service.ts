@@ -67,8 +67,7 @@ export class ArticleService {
           await this.redisService.setCache(key, 1, 60 * 5);
           // 给文章预览数加一
           await this.ArticleRepository.increment({ id }, 'preview', 1);
-          // 更新现有的文章预览数
-          tmp.preview += 1;
+          tmp.preview = tmp.preview + 1;
         }
       }
       const isLike = await this.UserLikeArticleRepository.findOne({
@@ -78,7 +77,10 @@ export class ArticleService {
         },
       });
       if (tmp) {
-        return ResponseHelper.success({ ...tmp, isLike: !!isLike });
+        return ResponseHelper.success({
+          ...tmp,
+          isLike: !!isLike,
+        });
       } else {
         return ResponseHelper.error(`Article ${id} does not exist`);
       }
@@ -87,7 +89,7 @@ export class ArticleService {
     }
   }
 
-  async findAll(_params: PagerQueryParams) {
+  async findAll(_params: PagerQueryParams, authorization: string) {
     const params = {
       page: 1,
       pageSize: 10,
@@ -98,15 +100,28 @@ export class ArticleService {
       isDelete: false,
       tag: params.tag,
     };
-    const data = await this.ArticleRepository.find({
-      skip: (+params.page - 1) * +params.pageSize,
-      take: +params.pageSize,
-      relations: ['user'],
-      order: {
-        createTime: 'ASC',
-      },
-      where: filter,
-    });
+    const data: (Article & { isLike?: boolean })[] =
+      await this.ArticleRepository.find({
+        skip: (+params.page - 1) * +params.pageSize,
+        take: +params.pageSize,
+        relations: ['user'],
+        order: {
+          createTime: 'ASC',
+        },
+        where: filter,
+      });
+    const user = jwt.decode(authorization) as User;
+    for (const item of data) {
+      const isUserLikeArticle = await this.UserLikeArticleRepository.findOneBy({
+        userId: user?.id,
+        articleId: item.id,
+      });
+      if (isUserLikeArticle) {
+        item.isLike = true;
+      } else {
+        item.isLike = false;
+      }
+    }
     const total = await this.ArticleRepository.count({
       where: filter,
     });

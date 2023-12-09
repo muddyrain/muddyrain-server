@@ -30,8 +30,11 @@ export class ArticleController {
 
   @Get()
   @AuthPublicMeta()
-  getAll(@Query() query: PagerQueryParams & { tag: ArticleTag }) {
-    return this.articleService.findAll(query);
+  getAll(
+    @Query() query: PagerQueryParams & { tag: ArticleTag },
+    @Headers('Authorization') authorization: string,
+  ) {
+    return this.articleService.findAll(query, authorization);
   }
 
   @Delete(':id')
