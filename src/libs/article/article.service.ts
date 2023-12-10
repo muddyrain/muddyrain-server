@@ -33,6 +33,7 @@ export class ArticleService {
           turndownService.turndown(body.content),
           100,
         ),
+        preview: 0,
       });
       await this.ArticleRepository.save(tmp);
       return ResponseHelper.success(tmp);
@@ -51,7 +52,11 @@ export class ArticleService {
     return ResponseHelper.success('Successfully modified');
   }
   async getById(id: PrimaryKeyType, authorization: string) {
-    type ArticleType = Article & { isLike?: boolean; commentCount: number };
+    type ArticleType = Article & {
+      isLike?: boolean;
+      isComment?: boolean;
+      commentCount: number;
+    };
     try {
       const user = jwt.decode(authorization) as User;
       const tmp = (await this.ArticleRepository.findOne({
@@ -78,13 +83,21 @@ export class ArticleService {
             articleId: id,
           },
         });
-        if (isLike) {
-          tmp.isLike = true;
-        } else {
-          tmp.isLike = false;
-        }
+        const isComment = await this.CommentRepository.findOne({
+          where: {
+            article: {
+              id,
+            },
+            user: {
+              id: user.id,
+            },
+          },
+        });
+        tmp.isComment = !!isComment;
+        tmp.isLike = !!isLike;
       } else {
         tmp.isLike = false;
+        tmp.isComment = false;
       }
       if (tmp?.id) {
         const commentCount = await this.CommentRepository.count({
