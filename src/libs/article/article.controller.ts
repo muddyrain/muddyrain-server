@@ -10,7 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
-import { PagerQueryParams, ParamsType } from '@/common';
+import { PagerQueryParams, ParamsType, PrimaryKeyType } from '@/common';
 import { AuthPublicMeta } from '@/decorators/AuthPublicMeta.decorator';
 import { Comment } from './Comment.entity';
 import { ArticleTag } from './article.entity';
@@ -59,10 +59,15 @@ export class ArticleController {
     return this.articleService.like(param.id, authorization);
   }
 
+  @Get('/comment/:id')
+  commentAll(@Param() param: ParamsType) {
+    return this.articleService.commentAll(param.id);
+  }
+
   @Post('/comment/:id')
   comment(
     @Param() param: ParamsType,
-    @Body() body: Comment,
+    @Body() body: Comment & { parentId: PrimaryKeyType },
     @Headers('Authorization') authorization: string,
   ) {
     return this.articleService.comment(param.id, body, authorization);

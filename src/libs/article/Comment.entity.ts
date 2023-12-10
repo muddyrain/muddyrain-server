@@ -1,7 +1,9 @@
 import { PrimaryKeyType } from '@/common';
 import { PRIVATE_KEY } from './../../constant/config';
 import { CommonEntity } from '@/common/commonEntity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToOne } from 'typeorm';
+import { User } from '../user/user.entity';
+import { Article } from './article.entity';
 
 @Entity()
 export class Comment extends CommonEntity {
@@ -11,25 +13,25 @@ export class Comment extends CommonEntity {
   })
   content: string;
 
-  @Column({
-    comment: '评论的文章id',
-    nullable: false,
-    type: 'int',
-  })
-  article_id: PrimaryKeyType;
+  @ManyToOne(() => Article, (article) => article.comment)
+  article: Article;
+
+  @ManyToOne(() => User, (user) => user.articles)
+  user: User;
 
   @Column({
-    comment: '评论的用户id',
-    nullable: false,
-    type: 'int',
-  })
-  user_id: PrimaryKeyType;
-
-  @Column({
-    comment: '评论的父级id',
-    nullable: true,
+    comment: '回复的回复id',
     default: 0,
+    nullable: false,
     type: 'int',
   })
-  parent_id: PrimaryKeyType;
+  reply_to_reply_id: PrimaryKeyType;
+
+  @Column({
+    comment: '回复id',
+    default: 0,
+    nullable: false,
+    type: 'int',
+  })
+  reply_id: PrimaryKeyType;
 }

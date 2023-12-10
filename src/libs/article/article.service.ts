@@ -114,7 +114,7 @@ export class ArticleService {
         take: +params.pageSize,
         relations: ['user'],
         order: {
-          createTime: 'ASC',
+          createTime: 'DESC',
         },
         where: filter,
       });
@@ -198,6 +198,56 @@ export class ArticleService {
     }
   }
 
+  async commentAll(id: PrimaryKeyType) {
+    if (isNaN(Number(id))) {
+      return ResponseHelper.error('Article id is not a number');
+    }
+    type CommentType = Comment & {
+      children?: Comment[];
+      replyToReply?: Comment;
+    };
+    const list: CommentType[] = await this.CommentRepository.find({
+      where: {
+        article: {
+          id,
+        },
+        reply_id: 0,
+        isDelete: false,
+      },
+      order: {
+        createTime: 'DESC',
+      },
+      relations: ['user'],
+    });
+
+    for (const item of list) {
+      const cList: CommentType[] = await this.CommentRepository.find({
+        where: {
+          article: {
+            id,
+          },
+          reply_id: item.id,
+          isDelete: false,
+        },
+        order: {
+          createTime: 'DESC',
+        },
+        relations: ['user'],
+      });
+      for (const cItem of cList) {
+        cItem.replyToReply = await this.CommentRepository.findOne({
+          where: {
+            id: cItem.reply_to_reply_id,
+          },
+          relations: ['user'],
+        });
+      }
+      item.children = cList;
+    }
+
+    return ResponseHelper.success(list);
+  }
+
   comment(id: PrimaryKeyType, body: Comment, authorization: string) {
     if (isNaN(Number(id))) {
       return ResponseHelper.error('Article id is not a number');
@@ -211,9 +261,10 @@ export class ArticleService {
       if (article) {
         const tmp = this.CommentRepository.create({
           ...body,
-          article_id: id,
-          user_id: user.id,
-          parent_id: body.parent_id || 0,
+          article: { id },
+          user: { id: user.id },
+          reply_id: body.reply_id,
+          reply_to_reply_id: body.reply_to_reply_id,
         });
         this.CommentRepository.save(tmp);
         return ResponseHelper.success('Successfully commented');

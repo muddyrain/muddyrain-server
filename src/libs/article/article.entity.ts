@@ -1,7 +1,14 @@
 import { CommonEntity } from '@/common/commonEntity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { User } from '../user/user.entity';
 import { PrimaryKeyType } from '@/common';
+import { Comment } from './Comment.entity';
 
 export enum ArticleTag {
   '前端',
@@ -68,6 +75,9 @@ export class Article extends CommonEntity {
 
   @ManyToOne(() => User, (user) => user.articles)
   user: User;
+
+  @OneToMany(() => Comment, (comment) => comment.article)
+  comment: Comment;
 
   @Column({
     nullable: false,
