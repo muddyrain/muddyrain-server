@@ -51,6 +51,7 @@ export class ArticleService {
     return ResponseHelper.success('Successfully modified');
   }
   async getById(id: PrimaryKeyType, authorization: string) {
+    type ArticleType = Article & { isLike?: boolean; commentCount: number };
     try {
       const user = jwt.decode(authorization) as User;
       const tmp = (await this.ArticleRepository.findOne({
@@ -58,7 +59,7 @@ export class ArticleService {
           id,
         },
         relations: ['user'],
-      })) as Article & { isLike?: boolean };
+      })) as ArticleType;
       // 发送消息到指定频道
       if (user) {
         const key = `muddyrain-article-preview-${id}-${user.id}`;
@@ -84,6 +85,17 @@ export class ArticleService {
         }
       } else {
         tmp.isLike = false;
+      }
+      if (tmp?.id) {
+        const commentCount = await this.CommentRepository.count({
+          where: {
+            article: {
+              id: tmp.id,
+            },
+            isDelete: false,
+          },
+        });
+        tmp.commentCount = commentCount;
       }
       if (tmp) {
         return ResponseHelper.success({
@@ -257,7 +269,6 @@ export class ArticleService {
       const article = this.ArticleRepository.findOneBy({
         id,
       });
-
       if (article) {
         const tmp = this.CommentRepository.create({
           ...body,

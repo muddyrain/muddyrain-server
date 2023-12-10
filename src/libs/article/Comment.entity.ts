@@ -34,4 +34,11 @@ export class Comment extends CommonEntity {
     type: 'int',
   })
   reply_id: PrimaryKeyType;
+
+  @Column({
+    nullable: false,
+    comment: '点赞次数',
+    default: 0,
+  })
+  like: number;
 }
