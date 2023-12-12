@@ -4,6 +4,7 @@ import { Article } from '../article/article.entity';
 import { Picture } from '../picture/picture.entity';
 import { PrimaryKeyType } from '@/common';
 import { Comment } from '../article/Comment.entity';
+import { RecentActivity } from '../recent-activity/recent-activity.entity';
 
 @Entity()
 export class User extends CommonEntity {
@@ -45,4 +46,7 @@ export class User extends CommonEntity {
 
   @OneToMany(() => Comment, (comment) => comment.user)
   comments: Comment[];
+
+  @OneToMany(() => RecentActivity, (recentActivities) => recentActivities.user)
+  recentActivities: RecentActivity[];
 }

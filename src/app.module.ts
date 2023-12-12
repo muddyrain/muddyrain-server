@@ -1,6 +1,5 @@
 import {
   Global,
-  Inject,
   Logger,
   MiddlewareConsumer,
   Module,

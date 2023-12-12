@@ -1,7 +1,6 @@
 import { PrimaryKeyType } from '@/common';
-import { PRIVATE_KEY } from './../../constant/config';
 import { CommonEntity } from '@/common/commonEntity';
-import { Column, Entity, ManyToOne, OneToOne } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Article } from './article.entity';
 
