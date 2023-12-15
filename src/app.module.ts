@@ -21,6 +21,7 @@ import { UtilsModule } from './libs/utils/utils.module';
 import { GlobalAuthGuard } from './guard/auth.guard';
 import { AppService } from './app.service';
 import { RedisService } from './pipes/redis.pipe';
+import { RecentActivityModule } from './libs/recent-activity/recent-activity.module';
 
 // 环境变量文件路径
 const envFilePath = `.env.${process.env.NODE_ENV}`;
@@ -39,6 +40,7 @@ const envFilePath = `.env.${process.env.NODE_ENV}`;
     ChatModule,
     ArticleModule,
     UtilsModule,
+    RecentActivityModule,
   ],
   providers: [
     Logger,

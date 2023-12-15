@@ -2,7 +2,7 @@ import { CommonEntity } from '@/common/commonEntity';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { User } from '../user/user.entity';
 
-export enum RecentActivityType {
+export enum RecentActivityTypeEnum {
   // 注册
   register = 0,
   // 登录
@@ -17,7 +17,7 @@ export class RecentActivity extends CommonEntity {
     comment: '活动类型',
     type: 'int',
   })
-  type: RecentActivityType;
+  type: RecentActivityTypeEnum;
 
   @Column({
     comment: '活动内容',

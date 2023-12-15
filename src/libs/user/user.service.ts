@@ -7,11 +7,17 @@ import { PagerQueryParams } from '@/common';
 import * as md5 from 'md5';
 import * as jwt from 'jsonwebtoken';
 import { PRIVATE_KEY } from '@/constant/config';
-
+import { EXPIRES_IN } from '@/constant';
+import {
+  RecentActivity,
+  RecentActivityTypeEnum,
+} from '../recent-activity/recent-activity.entity';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(RecentActivity)
+    public readonly recentActivityRepository: Repository<RecentActivity>,
   ) {}
   async create(user: User) {
     const target = await this.userRepository.findOne({
@@ -28,6 +34,10 @@ export class UserService {
       });
       const _user = await this.userRepository.save(userTmp);
       delete _user.password;
+      this.createRecentActivity({
+        type: RecentActivityTypeEnum.register,
+        user: _user,
+      } as RecentActivity);
       return ResponseHelper.success('Created successfully');
     }
   }
@@ -113,17 +123,26 @@ export class UserService {
     });
     if (user && user.password === md5(body.password)) {
       const token = jwt.sign({ ...user }, PRIVATE_KEY, {
-        expiresIn: '7d',
+        expiresIn: EXPIRES_IN,
         header: {
           typ: 'JWT',
           alg: 'HS256',
         },
       });
+      this.createRecentActivity({
+        type: RecentActivityTypeEnum.login,
+        user,
+      } as RecentActivity);
       return ResponseHelper.success({
         token,
         ...user,
       });
     }
     return ResponseHelper.error('Username or password is incorrect');
+  }
+
+  createRecentActivity(body: RecentActivity) {
+    const tmp = this.recentActivityRepository.create(body);
+    return this.recentActivityRepository.save(tmp);
   }
 }

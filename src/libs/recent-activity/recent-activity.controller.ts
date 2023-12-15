@@ -1,11 +1,12 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Controller, Get, Post } from '@nestjs/common';
 import { RecentActivityService } from './recent-activity.service';
 
-@Controller('template')
+@Controller('recent-activity')
 export class RecentActivityController {
   constructor(private readonly recentActivityService: RecentActivityService) {}
-  @Post()
-  create(@Body() body) {
-    return this.recentActivityService.create(body);
+
+  @Get()
+  findAll() {
+    return this.recentActivityService.findAll();
   }
 }
