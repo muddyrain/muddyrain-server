@@ -48,6 +48,11 @@ export class UserController {
     return this.userService.update(body, param.id);
   }
 
+  @Get(':id')
+  detail(@Param() param: ParamsType) {
+    return this.userService.detail(param.id);
+  }
+
   @Delete(':id')
   remove(@Param() param: ParamsType) {
     return this.userService.remove(param.id);

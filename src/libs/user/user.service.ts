@@ -145,4 +145,14 @@ export class UserService {
     const tmp = this.recentActivityRepository.create(body);
     return this.recentActivityRepository.save(tmp);
   }
+
+  async detail(id: string) {
+    const tmp = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+    });
+    if (!tmp) return ResponseHelper.error('User does not exist');
+    return ResponseHelper.success(tmp);
+  }
 }
