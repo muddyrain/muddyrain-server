@@ -22,6 +22,7 @@ export class RecentActivity extends CommonEntity {
   @Column({
     comment: '活动内容',
     type: 'text',
+    nullable: true,
   })
   content: string;
 
