@@ -18,7 +18,8 @@ export class UtilsService {
 
   async upload(file: Express.Multer.File) {
     const metaData = {
-      'Content-Type': 'image/jpeg',
+      'Content-Type': 'image/*',
+      'x-amz-acl': 'public-read', // 设置访问权限为公开读取
     };
     try {
       const bucketName = this.bucketName;
